@@ -36,6 +36,7 @@ void async_stepper_update(async_stepper_t* stepper) {
 		if(step != 0) {
 			stepper->steps_done += 1;
 			stepper->steps_left += step;
+			stepper->position += step;
 		}
 	}
 }
