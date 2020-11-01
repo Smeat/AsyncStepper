@@ -27,9 +27,9 @@ typedef struct unipolar_pins_s {
 	uint32_t pins[4];
 } unipolar_pins_t;
 
-void unipolar_update(void* stepper_void) {
+int unipolar_update(void* stepper_void) {
 	async_stepper_t* stepper = (async_stepper_t*) stepper_void;
-	if(async_stepper_should_step(stepper)) {
+	if(async_stepper_should_step(stepper) && stepper->on) {
 		const uint8_t pattern[4] = {
 			0b10000011,
 			0b00111000,
@@ -49,15 +49,23 @@ void unipolar_update(void* stepper_void) {
 		if (stepper->steps_left > 0){
 			*step_mask <<= 1;
 			if (*step_mask == 0) *step_mask = 0b00000001;
-			stepper->steps_left--;
-			stepper->steps_done++;
+			return -1;
 		} else if (stepper->steps_left < 0) {
 			*step_mask >>= 1;
 			if (*step_mask == 0) *step_mask = 0b10000000;
-			stepper->steps_left++;
-			stepper->steps_done++;
+			return 1;
 		}
 	}
+	// Disable the motor if on is false
+	if(!stepper->on) {
+		uint8_t* step_mask = stepper->extra_data;
+		unipolar_pins_t pins;
+		memcpy(&pins, stepper->pins, sizeof(pins));
+		for (int i = 0; i < 4; ++i) {
+			digitalWrite(pins.pins[i], 0);
+		}
+	}
+	return 0;
 }
 
 void unipolar_init(async_stepper_t* stepper, int steps, int rpm, int pin1, int pin2, int pin3, int pin4) {

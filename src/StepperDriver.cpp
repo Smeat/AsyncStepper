@@ -38,7 +38,7 @@ void stepper_get_pins(async_stepper_t* stepper, stepper_pins_t* pins) {
 	memcpy(pins, stepper->pins, sizeof(stepper_pins_t));
 }
 
-void stepper_update(void* stepper_void) {
+int stepper_update(void* stepper_void) {
 	async_stepper_t* stepper = (async_stepper_t*)stepper_void;
 
 	uint32_t* last_step_us = (uint32_t*)stepper->extra_data;
@@ -50,11 +50,9 @@ void stepper_update(void* stepper_void) {
 		if(micros() - *last_step_us > STEP_STAY_US) {
 			*last_step_us = 0;
 			digitalWrite(pins.step, LOW);
-			stepper->steps_left -= stepper->steps_left > 0 ? 1 : -1;
-			stepper->steps_done += 1;
+			return stepper->steps_left > 0 ? 1 : -1;
 		}
-	}
-	else if(async_stepper_should_step(stepper)) {
+	} else if(async_stepper_should_step(stepper)) {
 		digitalWrite(pins.dir, stepper->steps_left > 0);
 		digitalWrite(pins.step, HIGH);
 		*last_step_us = micros();

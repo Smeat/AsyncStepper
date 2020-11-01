@@ -32,12 +32,18 @@ void async_stepper_set_rpm(async_stepper_t* stepper, double rpm) {
 
 void async_stepper_update(async_stepper_t* stepper) {
 	if(stepper->update){
-		stepper->update(stepper);
+		int step = stepper->update(stepper);
+		if(step != 0) {
+			stepper->steps_done += 1;
+			stepper->steps_left += step;
+		}
 	}
 }
 
 int async_stepper_should_step(async_stepper_t* stepper) {
-	return micros() - stepper->move_start_time_us - stepper->step_delay_us * stepper->steps_done >= stepper->step_delay_us;
+	uint32_t time_passed = micros() - stepper->move_start_time_us;
+	uint32_t last_step_time = stepper->step_delay_us * stepper->steps_done;
+	return time_passed - last_step_time >= stepper->step_delay_us;
 }
 
 void async_stepper_init(async_stepper_t* stepper, int steps, double rpm) {

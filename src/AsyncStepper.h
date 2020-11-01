@@ -31,14 +31,17 @@ typedef struct async_stepper_s {
 	// runtime info
 	int steps_left;
 	int move_start_time_us;
+	/// we count the steps done (instead of last step time) to be able to catch up if the µC hangs or similar
 	int steps_done;
+	/// the current position. negative is ccw and positive cw
+	int position;
 
 	// space for 8x32bit
 	uint8_t pins[32];
 	// extra data for stepper specific implementations. e.g. sequence for cheap stepper
 	uint8_t extra_data[4];
 
-	void (*update)(void* stepper);
+	int (*update)(void* stepper);
 } async_stepper_t;
 
 void async_stepper_update(async_stepper_t*);

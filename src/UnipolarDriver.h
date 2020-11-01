@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include "AsyncStepper.h"
 
-void unipolar_update(void* stepper);
+int unipolar_update(void* stepper);
 void unipolar_init(async_stepper_t* stepper, int steps, int rpm, int pin1, int pin2, int pin3, int pin4);
 
 
