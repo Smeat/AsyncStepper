@@ -24,6 +24,7 @@
 void async_stepper_move(async_stepper_t* stepper, int steps) {
 	stepper->move_start_time_us = micros();
 	stepper->steps_left = steps;
+	stepper->on = true;
 }
 
 void async_stepper_set_rpm(async_stepper_t* stepper, double rpm) {

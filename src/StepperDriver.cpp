@@ -57,6 +57,7 @@ int stepper_update(void* stepper_void) {
 		digitalWrite(pins.step, HIGH);
 		*last_step_us = micros();
 	}
+	return 0;
 }
 
 void stepper_init(async_stepper_t* stepper, int steps, int rpm, int dir, int step, int on, int ms1, int ms2, int ms3) {
